@@ -386,7 +386,7 @@ app.get('/agendamentos', (req, res) => {
                     servicos.nome AS servico_nome,
                     clientes.nome AS cliente_nome
                  FROM agendamentos
-                 JOIN servicos ON agendamentos.servico_nome = servicos.text
+                 JOIN servicos ON agendamentos.servico_id = servicos.id
                  JOIN clientes ON agendamentos.cliente_cpf = clientes.cpf
                  WHERE 1=1`;  // Começar com um WHERE sempre verdadeiro (1=1)
 
