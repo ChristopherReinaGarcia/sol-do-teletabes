@@ -48,7 +48,7 @@ async function listarBarbeiros() {
         const response = await fetch(url);
         const barbeiros = await response.json();
 
-        const tabela = document.getElementById('tabela-barbeiros');uuu
+        const tabela = document.getElementById('tabela-barbeiros');
         tabela.innerHTML = ''; // Limpa a tabela antes de preencher
 
         if (barbeiros.length === 0) {

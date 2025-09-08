@@ -1,5 +1,4 @@
 async function buscarServico() {
-
     fetch("/buscar-servicos")
         .then((response) => {
             if (!response.ok) {
@@ -22,7 +21,6 @@ async function buscarServico() {
 }
 
 async function buscaHorariosDisponiveis() {
-
     const data = document.getElementById("data").value;
     const id = document.getElementById("servicoSelecionado").value;
     // Verifica se ambos os campos estão preenchidos
@@ -101,5 +99,46 @@ async function cadastrarAgendamento(event) {
     } catch (e) {
         console.error("Erro ao cadastrar agendamento:", e);
         alert("Erro de rede ao cadastrar.");
+    }
+}
+
+// Função para listar todos os clientes ou buscar clientes por CPF
+async function listarAgendamentos() {
+    const data = document.getElementById("data").value.trim(); // Pega o valor do CPF digitado no input
+
+    let url = "/agendamentos"; // URL padrão para todos os clientes
+
+    if (data) {
+        // Se CPF foi digitado, adiciona o parâmetro de consulta
+        url += `?data=${data}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const agendamentos = await response.json();
+
+        const tabela = document.getElementById("tabela-agendamentos");
+        tabela.innerHTML = ""; // Limpa a tabela antes de preencher
+
+        if (agendamentos.length === 0) {
+            // Caso não encontre clientes, exibe uma mensagem
+            tabela.innerHTML =
+                '<tr><td colspan="6">Nenhum agendamento encontrado.</td></tr>';
+        } else {
+            agendamentos.forEach(agendamento => {
+                const linha = document.createElement("tr");
+                linha.innerHTML = `
+                    <td>${agendamento.id}</td>
+                    <td>${agendamento.data}</td>
+                    <td>${agendamento.horario}</td>
+                    <td>${agendamento.cpf_cliente}</td>
+                    <td>${agendamento.cpf_barbeiro}</td>
+                    <td>${agendamento.id_servico}</td>
+                `;
+                tabela.appendChild(linha);
+            });
+        }
+    } catch (error) {
+        console.error("Erro ao listar agendamentos:", error);
     }
 }

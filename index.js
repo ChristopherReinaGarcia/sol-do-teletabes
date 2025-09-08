@@ -58,7 +58,7 @@ db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS agendamentos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            data DATE NOT NULL,
+            data DATE NOT NULL UNIQUE,
             horario TIME NOT NULL,
             cpf_cliente VARCHAR(11) NOT NULL,
             cpf_barbeiro VARCHAR(14) NOT NULL,
@@ -206,22 +206,7 @@ app.put("/barbeiros/cpf/:cpf", (req, res) => {
 });
 
 ///////////////////////////// Rotas para Serviços /////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 // Cadastrar serviços
 app.post("/servicos", (req, res) => {
     const { nome, preco, duracao, descricao } = req.body;
@@ -347,6 +332,41 @@ app.post('/cadastrar-agendamento', (req, res) => {
         }
     });
 }); 
+
+// Listar agendamentos
+// Endpoint para listar todos os clientes ou buscar por CPF
+app.get("/agendamentos", (req, res) => {
+    const data = req.query.date || ""; // Recebe o CPF da query string (se houver)
+
+    if (data) {
+        // Se CPF foi passado, busca clientes que possuam esse CPF ou parte dele
+        const query = `SELECT * FROM agendamentos WHERE data LIKE ?`;
+
+        db.all(query, [`%${data}%`], (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res
+                    .status(500)
+                    .json({ message: "Erro ao buscar clientes." });
+            }
+            res.json(rows); // Retorna os clientes encontrados ou um array vazio
+        });
+    } else {
+        // Se CPF não foi passado, retorna todos os clientes
+        const query = `SELECT * FROM agendamentos`;
+
+        db.all(query, (err, rows) => {
+            if (err) {
+                console.error(err);
+                return res
+                    .status(500)
+                    .json({ message: "Erro ao buscar agendamentos." });
+            }
+            res.json(rows); // Retorna todos os clientes
+        });
+    }
+});
+
 ///////////////////////////// Rotas para Relatorio /////////////////////////////
 ///////////////////////////// Rotas para Relarorio /////////////////////////////
 ///////////////////////////// Rotas para Relatorio /////////////////////////////
@@ -354,34 +374,34 @@ app.post('/cadastrar-agendamento', (req, res) => {
 
 
 // Rota para buscar vendas com filtros (cpf, produto, data)
-app.get('/relatorios', (req, res) => {
-    const { cpf, servico, dataInicio, dataFim } = req.query;
+app.get('/agendamentos', (req, res) => {
+    const { cpf_cliente, servico, dataInicio, dataFim } = req.query;
 
     let query = `SELECT
-                    agendamento.id,
-                    agendamento.cliente_cpf,
-                    agendamento.produto_id,
-                    agendamento.horario,
-                    agendamento.data, 
-                    servicos.nome AS servicos_nome,
+                    agendamentos.id,
+                    agendamentos.cliente_cpf,
+                    agendamentos.servico_nome,
+                    agendamentos.horario,
+                    agendamentos.data, 
+                    servicos.nome AS servico_nome,
                     clientes.nome AS cliente_nome
-                 FROM agendamento
-                 JOIN servicos ON vendas.servicos_id = servicos.id
-                 JOIN clientes ON vendas.cliente_cpf = clientes.cpf
+                 FROM agendamentos
+                 JOIN servicos ON agendamentos.servico_nome = servicos.text
+                 JOIN clientes ON agendamentos.cliente_cpf = clientes.cpf
                  WHERE 1=1`;  // Começar com um WHERE sempre verdadeiro (1=1)
 
     const params = [];
 
     // Filtro por CPF do cliente
-    if (cpf) {
-        query += ` AND agendamento.cliente_cpf = ?`;
-        params.push(cpf);
+    if (cpf_cliente) {
+        query += ` AND agendamentos.cpf_cliente = ?`;
+        params.push(cpf_cliente);
     }
 
     // Filtro por nome do produto
     if (servico) {
         query += ` AND servicos.nome LIKE ?`;
-        params.push(`%${produto}%`);
+        params.push(`%${servico}%`);
     }
 
     // Filtro por data

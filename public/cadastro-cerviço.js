@@ -72,9 +72,9 @@ async function listarClientes() {
 // Função para atualizar as informações do cliente
 async function atualizarCliente() {
     const nome = document.getElementById('nome').value;
-    const cpf = document.getElementById('preco').value;
-    const email = document.getElementById('duracao').value;
-    const endereco = document.getElementById('descricao').value;
+    const preco = document.getElementById('preco').value;
+    const duracao = document.getElementById('duracao').value;
+    const descricao = document.getElementById('descricao').value;
 
     const clienteAtualizado = {
         nome,
